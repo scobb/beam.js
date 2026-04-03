@@ -1,0 +1,19 @@
+{
+  "name": "@keylightdigital/beam.js",
+  "version": "0.1.0",
+  "description": "Open-source browser tracking script for Beam privacy-first analytics",
+  "license": "MIT",
+  "homepage": "https://beam.keylightdigital.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scobb/beam.js.git"
+  },
+  "keywords": [
+    "analytics",
+    "privacy",
+    "gdpr",
+    "cookieless",
+    "web-analytics",
+    "tracking"
+  ]
+}
