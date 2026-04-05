@@ -1,7 +1,10 @@
-name: Initialize Wiki
+name: Initialize Wiki (Auto)
 
 on:
   workflow_dispatch:
+  schedule:
+    # Run every 6 hours — auto-pushes wiki pages once Steve initializes the wiki via web UI
+    - cron: '0 */6 * * *'
 
 permissions:
   contents: write
@@ -18,7 +21,7 @@ jobs:
           git config --global user.email "ralph@keylightdigital.com"
           git config --global user.name "Ralph (Keylight Digital)"
 
-      - name: Push wiki pages
+      - name: Push wiki pages (if wiki is initialized)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
@@ -26,12 +29,19 @@ jobs:
           set -e
           WIKI_URL="https://x-access-token:${GH_TOKEN}@github.com/${REPO}.wiki.git"
 
-          # Check if wiki is initialized
+          # Check if wiki is initialized — exit 0 if not (scheduled runs should not fail)
           if ! git clone "${WIKI_URL}" wiki-repo 2>/dev/null; then
-            echo "ERROR: Wiki is not initialized yet."
-            echo "Steve: please visit https://github.com/${REPO}/wiki/_new"
-            echo "Create a page titled 'Home' with any content, then re-run this workflow."
-            exit 1
+            echo "Wiki not yet initialized. Waiting for Steve to visit:"
+            echo "  https://github.com/${REPO}/wiki/_new"
+            echo "Once initialized, this workflow will auto-push all pages on its next run."
+            echo "Or trigger manually: gh workflow run 'Initialize Wiki (Auto)' --repo ${REPO}"
+            exit 0
+          fi
+
+          # Check if pages were already pushed (idempotent)
+          if [ -f "wiki-repo/Getting-Started.md" ] && [ -f "wiki-repo/API-Reference.md" ]; then
+            echo "Wiki pages already exist — nothing to do."
+            exit 0
           fi
 
           # Copy wiki pages from wiki-content/
