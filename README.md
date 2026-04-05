@@ -1,107 +1,128 @@
-# beam.js
+```text
+██████  ███████  █████  ███    ███
+██   ██ ██      ██   ██ ████  ████
+██████  █████   ███████ ██ ████ ██
+██   ██ ██      ██   ██ ██  ██  ██
+██████  ███████ ██   ██ ██      ██
+```
 
-Open-source tracking script for [Beam](https://beam.keylightdigital.dev), a privacy-first web analytics service from Keylight Digital LLC.
+# beam-analytics
 
-`beam.js` is the tiny client-side script that powers Beam pageview and custom event collection. The backend and dashboard are a hosted SaaS product; this repository contains only the browser tracking script so developers can inspect exactly what runs on their sites.
+[![npm version](https://img.shields.io/npm/v/beam-analytics.svg)](https://www.npmjs.com/package/beam-analytics)
+[![npm downloads](https://img.shields.io/npm/dm/beam-analytics.svg)](https://www.npmjs.com/package/beam-analytics)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Powered by Beam](https://img.shields.io/badge/Powered%20by-Beam-4f46e5)](https://beam-privacy.com)
 
-## What Beam tracks
+Privacy-first, cookie-free web analytics tracking script for [Beam](https://beam-privacy.com) by Keylight Digital LLC.
 
-- Page path
-- Referrer URL
-- Screen width
-- Browser language
-- Timezone
-- Optional UTM tags: `utm_source`, `utm_medium`, `utm_campaign`
-- Optional custom event name and JSON properties when you call `beam.track(...)`
+## Live Demo
 
-## What Beam does not track
+- Try the product: https://beam-privacy.com/demo
+- See API docs: https://beam-privacy.com/docs/api
 
-- Cookies
-- `localStorage` or `sessionStorage`
-- IP addresses in the script
-- Persistent user identifiers
-- Cross-site behavior
-- Any ad-tech or fingerprinting data
+![Beam live demo dashboard preview](./assets/demo-dashboard.png)
 
-## Setup
+## Why This Script
 
-Add the script tag to your page `<head>`:
+- Tiny payload: `beam.js` is currently `1592` bytes raw in this repo
+- No cookies, no localStorage, no fingerprinting
+- GDPR-friendly event and pageview tracking
+- Works with static sites, SPAs, and server frameworks
+
+## Script Size Comparison
+
+Measured as uncompressed response size (bytes) on 2026-04-03.
+
+| Tool | Script Size |
+| --- | ---: |
+| Beam (`beam.js`) | 1,592 B |
+| Plausible (`/js/script.js`) | 3,005 B |
+| Fathom (`/script.js`) | 6,905 B |
+| Umami Cloud (`/script.js`) | 4,584 B |
+
+## Installation
+
+### Option 1: Script Tag (recommended)
 
 ```html
-<script defer src="https://beam.keylightdigital.dev/js/beam.js" data-site-id="YOUR_SITE_ID"></script>
+<script defer src="https://beam-privacy.com/js/beam.js" data-site-id="YOUR_SITE_ID"></script>
 ```
 
-Beam automatically sends a pageview on load.
+### Option 2: npm
 
-### Custom events
+```bash
+npm install beam-analytics
+```
 
 ```html
-<script>
-  window.beam.track('signup_started', { plan: 'pro' })
-</script>
+<!-- Serve beam.js from node_modules or your copied public asset path -->
+<script defer src="/vendor/beam.js" data-site-id="YOUR_SITE_ID"></script>
 ```
 
-## Framework examples
+The npm package provides the script file (`beam.js`) and type declarations (`index.d.ts`).
 
-### Plain HTML
+## Technical Article
 
-```html
-<!doctype html>
-<html lang="en">
-  <head>
-    <script defer src="https://beam.keylightdigital.dev/js/beam.js" data-site-id="YOUR_SITE_ID"></script>
-  </head>
-</html>
+**[Building privacy-first web analytics on Cloudflare Workers and D1](./articles/edge-analytics-architecture.md)**
+
+An in-depth look at how Beam works under the hood: the Cloudflare Workers + D1 architecture, the cookie-free daily hashing approach for unique visitor counting, and the sub-2KB tracking script design. Also available on [Beam's blog](https://beam-privacy.com/blog/edge-analytics-architecture) and [Dev.to](https://dev.to/new) (paste from [devto-article.md](../launch/community-posts/devto-article.md)).
+
+## Install Examples
+
+GitHub-indexable install examples:
+
+- [Next.js example](./examples/nextjs.md)
+- [Astro example](./examples/astro.md)
+- [Shopify example](./examples/shopify.md)
+- [WordPress example](./examples/wordpress.md)
+- [Webflow example](./examples/webflow.md)
+- [All examples](./examples/README.md)
+
+Canonical Beam guides:
+
+- https://beam-privacy.com/for/nextjs
+- https://beam-privacy.com/for/astro
+- https://beam-privacy.com/for/shopify
+- https://beam-privacy.com/for/wordpress
+- https://beam-privacy.com/wordpress-plugin
+- https://beam-privacy.com/for/webflow
+
+## Quick Start
+
+1. Create a site in the Beam dashboard and copy your `site_id`.
+2. Add the script tag to your site.
+3. Open your site once to generate a pageview.
+4. Check analytics in your dashboard.
+
+## Custom Event Tracking
+
+```js
+window.beam.track('purchase', { product: 'Pro Plan', value: 5 })
+window.beam.track('newsletter_signup')
 ```
 
-### React
+## TypeScript Support
 
-```jsx
-export function App() {
-  return (
-    <>
-      <script defer src="https://beam.keylightdigital.dev/js/beam.js" data-site-id="YOUR_SITE_ID"></script>
-      <main>Your app</main>
-    </>
-  )
-}
+This package ships with `index.d.ts`.
+
+```ts
+window.beam.track('upgrade', { from: 'free', to: 'pro' })
 ```
 
-### Next.js
+## Documentation
 
-```tsx
-import Script from 'next/script'
+- Product and signup: https://beam-privacy.com
+- Live demo: https://beam-privacy.com/demo
+- API docs: https://beam-privacy.com/docs/api
+- Source repo: https://github.com/scobb/beam.js
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body>
-        <Script
-          id="beam"
-          strategy="afterInteractive"
-          src="https://beam.keylightdigital.dev/js/beam.js"
-          data-site-id="YOUR_SITE_ID"
-        />
-        {children}
-      </body>
-    </html>
-  )
-}
-```
+## Contributing
 
-### WordPress
+Contributions are welcome. Before opening a PR:
 
-Paste this snippet into your theme header or a code-injection plugin:
-
-```html
-<script defer src="https://beam.keylightdigital.dev/js/beam.js" data-site-id="YOUR_SITE_ID"></script>
-```
-
-## Development notes
-
-- Hosted product: https://beam.keylightdigital.dev
-- Pricing: free tier available, Pro at $5/month
-- Privacy model: cookie-free, no persistent identifiers, GDPR-friendly by design
+- Read [CONTRIBUTING.md](./CONTRIBUTING.md)
+- Use the bug template: [New bug report](https://github.com/scobb/beam.js/issues/new?template=bug_report.md)
+- Keep changes focused on the public script package and docs
 
 ## License
 
