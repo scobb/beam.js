@@ -1,0 +1,50 @@
+name: Initialize Wiki
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  init-wiki:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure git
+        run: |
+          git config --global user.email "ralph@keylightdigital.com"
+          git config --global user.name "Ralph (Keylight Digital)"
+
+      - name: Initialize wiki repository
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Try to clone the wiki repo
+          if git clone "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.wiki.git" wiki-repo 2>/dev/null; then
+            echo "Wiki already initialized"
+          else
+            echo "Wiki not initialized yet, creating first page..."
+            mkdir wiki-repo
+            cd wiki-repo
+            git init
+            git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.wiki.git"
+          fi
+          cd wiki-repo
+
+      - name: Create Home page
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd wiki-repo || (mkdir wiki-repo && cd wiki-repo && git init && git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.wiki.git")
+          cat > Home.md << 'EOF'
+          # Beam — Privacy-First Web Analytics
+
+          Welcome to the Beam wiki. See [Getting Started](Getting-Started) for installation instructions.
+
+          - [beam-privacy.com](https://beam-privacy.com)
+          - [Demo](https://beam-privacy.com/demo)
+          - [Signup](https://beam-privacy.com/signup)
+          EOF
+          git add Home.md
+          git commit -m "Initialize wiki with Home page" || echo "Nothing to commit"
+          git push origin master --force || git push origin main --force || echo "Push failed - wiki repo may not exist"
