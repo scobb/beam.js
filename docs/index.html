@@ -25,6 +25,11 @@
     ul { list-style: none; padding: 0; }
     ul li::before { content: "check "; color: #15803d; font-weight: 700; }
     ul li { margin-bottom: 0.3rem; color: #374151; }
+    .doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+    .doc-card { border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 0.875rem; text-decoration: none; color: #111; transition: border-color 0.15s, box-shadow 0.15s; display: block; }
+    .doc-card:hover { border-color: #15803d; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .doc-card-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem; }
+    .doc-card-desc { font-size: 0.8rem; color: #6b7280; }
     footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 0.875rem; }
     footer a { color: #6b7280; text-decoration: underline; }
   </style>
@@ -68,6 +73,34 @@
     Pro plan: $5/month — unlimited sites, up to 500,000 pageviews/month.
   </p>
   <p><a href="https://beam-privacy.com/signup">Get started free at beam-privacy.com</a></p>
+
+  <h2>Documentation</h2>
+  <div class="doc-grid">
+    <a href="getting-started.html" class="doc-card">
+      <div class="doc-card-title">Getting Started</div>
+      <div class="doc-card-desc">Privacy analytics setup in 5 minutes</div>
+    </a>
+    <a href="privacy-design.html" class="doc-card">
+      <div class="doc-card-title">Privacy Design</div>
+      <div class="doc-card-desc">How cookie-free tracking works</div>
+    </a>
+    <a href="api-reference.html" class="doc-card">
+      <div class="doc-card-title">API Reference</div>
+      <div class="doc-card-desc">Stats API, collect endpoint, JS client</div>
+    </a>
+    <a href="alternatives.html" class="doc-card">
+      <div class="doc-card-title">Comparison</div>
+      <div class="doc-card-desc">Beam vs Plausible vs Fathom vs Umami</div>
+    </a>
+    <a href="cookie-free-analytics-guide.html" class="doc-card">
+      <div class="doc-card-title">Cookie-Free Guide</div>
+      <div class="doc-card-desc">Complete guide to cookieless analytics</div>
+    </a>
+    <a href="comparison.html" class="doc-card">
+      <div class="doc-card-title">Full Comparison Table</div>
+      <div class="doc-card-desc">Detailed feature comparison 2026</div>
+    </a>
+  </div>
 
   <h2>More resources</h2>
   <p>
