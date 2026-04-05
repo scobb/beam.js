@@ -14,37 +14,49 @@ jobs:
         run: |
           git config --global user.email "ralph@keylightdigital.com"
           git config --global user.name "Ralph (Keylight Digital)"
+          git config --global init.defaultBranch master
 
-      - name: Initialize wiki repository
+      - name: Try to initialize wiki
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Try to clone the wiki repo
-          if git clone "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.wiki.git" wiki-repo 2>/dev/null; then
-            echo "Wiki already initialized"
+          set -e
+          WIKI_URL="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.wiki.git"
+          
+          # Clone or initialize
+          if git clone "${WIKI_URL}" wiki-repo 2>&1; then
+            echo "Wiki already initialized, using existing repo"
           else
-            echo "Wiki not initialized yet, creating first page..."
-            mkdir wiki-repo
-            cd wiki-repo
-            git init
-            git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.wiki.git"
+            echo "Wiki not initialized, creating from scratch"
+            mkdir -p wiki-repo
+            git -C wiki-repo init
+            git -C wiki-repo remote add origin "${WIKI_URL}"
           fi
+          
+          # Create Home.md
+          cat > wiki-repo/Home.md << 'EOF'
+# Beam — Privacy-First Web Analytics
+
+Welcome to the official documentation wiki for **[Beam](https://beam-privacy.com)** — a cookie-free, GDPR-compliant web analytics service.
+
+## Quick Links
+
+- [Live Demo](https://beam-privacy.com/demo)
+- [Sign Up Free](https://beam-privacy.com/signup)
+- [API Documentation](https://beam-privacy.com/docs/api)
+- [How It Works](https://beam-privacy.com/how-it-works)
+
+## Wiki Pages
+
+- [Getting Started](Getting-Started) — Install in under 5 minutes
+- [Privacy Design](Privacy-Design) — Cookie-free tracking explained
+- [API Reference](API-Reference) — Stats API and custom events
+- [Comparison with Alternatives](Comparison-with-Alternatives) — Beam vs Plausible, Fathom, Matomo
+EOF
+          
           cd wiki-repo
-
-      - name: Create Home page
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          cd wiki-repo || (mkdir wiki-repo && cd wiki-repo && git init && git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.wiki.git")
-          cat > Home.md << 'EOF'
-          # Beam — Privacy-First Web Analytics
-
-          Welcome to the Beam wiki. See [Getting Started](Getting-Started) for installation instructions.
-
-          - [beam-privacy.com](https://beam-privacy.com)
-          - [Demo](https://beam-privacy.com/demo)
-          - [Signup](https://beam-privacy.com/signup)
-          EOF
           git add Home.md
-          git commit -m "Initialize wiki with Home page" || echo "Nothing to commit"
-          git push origin master --force || git push origin main --force || echo "Push failed - wiki repo may not exist"
+          git commit -m "Add Home wiki page" 2>&1 || echo "Nothing to commit"
+          git push origin master --force 2>&1
+          echo "Push complete!"
+
