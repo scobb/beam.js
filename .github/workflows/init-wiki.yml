@@ -7,60 +7,44 @@ permissions:
   contents: write
 
 jobs:
-  init-wiki:
+  push-wiki-pages:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout main repo
+        uses: actions/checkout@v4
+
       - name: Configure git
         run: |
           git config --global user.email "ralph@keylightdigital.com"
           git config --global user.name "Ralph (Keylight Digital)"
-          git config --global init.defaultBranch master
 
-      - name: Initialize wiki repository
+      - name: Push wiki pages
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
           set -e
           WIKI_URL="https://x-access-token:${GH_TOKEN}@github.com/${REPO}.wiki.git"
-          
-          # Try to clone; if repo does not exist, init from scratch
-          if ! git clone "${WIKI_URL}" wiki-repo; then
-            mkdir -p wiki-repo
-            git -C wiki-repo init
-            git -C wiki-repo remote add origin "${WIKI_URL}"
+
+          # Check if wiki is initialized
+          if ! git clone "${WIKI_URL}" wiki-repo 2>/dev/null; then
+            echo "ERROR: Wiki is not initialized yet."
+            echo "Steve: please visit https://github.com/${REPO}/wiki/_new"
+            echo "Create a page titled 'Home' with any content, then re-run this workflow."
+            exit 1
           fi
 
-      - name: Create wiki pages
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-        run: |
-          set -e
-          WIKI_URL="https://x-access-token:${GH_TOKEN}@github.com/${REPO}.wiki.git"
-          
-          printf '%s\n' \
-            '# Beam — Privacy-First Web Analytics' \
-            '' \
-            'Welcome to the official documentation wiki for **[Beam](https://beam-privacy.com)**.' \
-            '' \
-            '## Quick Links' \
-            '' \
-            '- [Live Demo](https://beam-privacy.com/demo)' \
-            '- [Sign Up Free](https://beam-privacy.com/signup)' \
-            '- [API Documentation](https://beam-privacy.com/docs/api)' \
-            '- [How It Works](https://beam-privacy.com/how-it-works)' \
-            '' \
-            '## Wiki Pages' \
-            '' \
-            '- [Getting Started](Getting-Started)' \
-            '- [Privacy Design](Privacy-Design)' \
-            '- [API Reference](API-Reference)' \
-            '- [Comparison with Alternatives](Comparison-with-Alternatives)' \
-            > wiki-repo/Home.md
+          # Copy wiki pages from wiki-content/
+          cp wiki-content/Home.md wiki-repo/Home.md
+          cp wiki-content/Getting-Started.md wiki-repo/Getting-Started.md
+          cp wiki-content/Privacy-Design.md wiki-repo/Privacy-Design.md
+          cp wiki-content/API-Reference.md wiki-repo/API-Reference.md
+          cp wiki-content/Comparison-with-Alternatives.md wiki-repo/Comparison-with-Alternatives.md
 
           cd wiki-repo
-          git add Home.md
-          git commit -m "Initialize wiki with Home page" || echo "Nothing to commit"
-          git push origin master --force
-          echo "SUCCESS: Wiki initialized!"
+          git add -A
+          git commit -m "Add Beam wiki: Getting Started, Privacy Design, API Reference, Comparison with Alternatives"
+          git push origin master
+          echo ""
+          echo "SUCCESS: All wiki pages published!"
+          echo "View at: https://github.com/${REPO}/wiki"
